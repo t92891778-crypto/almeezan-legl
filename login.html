@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول | الميزان</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0d0d0d; color: #fff; padding: 20px; text-align: center; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .login-box { background-color: #141414; padding: 30px; border-radius: 10px; border: 1px solid #d4af37; width: 100%; max-width: 400px; box-sizing: border-box; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.1); }
+        .logo { color: #d4af37; font-size: 24px; font-weight: bold; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; text-align: right; }
+        label { display: block; margin-bottom: 8px; color: #d4af37; font-size: 14px; }
+        .form-input { width: 100%; padding: 12px; border-radius: 6px; border: 1px solid #262626; background-color: #1f1f1f; color: #fff; box-sizing: border-box; font-size: 15px; outline: none; transition: border-color 0.3s; }
+        .form-input:focus { border-color: #d4af37; }
+        .btn { background-color: #d4af37; color: #0d0d0d; border: none; padding: 12px; font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; transition: background 0.3s; }
+        .btn:hover { background-color: #fff; }
+    </style>
+</head>
+<body>
+
+    <div class="login-box">
+        <div class="logo">الميزان | بوابة الدخول</div>
+        
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label>البريد الإلكتروني:</label>
+                <input type="email" id="email" placeholder="name@example.com" class="form-input" required>
+            </div>
+
+            <div class="form-group">
+                <label>كلمة السر:</label>
+                <input type="password" id="password" placeholder="••••••••" class="form-input" required>
+            </div>
+
+            <button type="submit" class="btn">تسجيل الدخول</button>
+        </form>
+    </div>
+
+<script>
+    function handleLogin(event) {
+        event.preventDefault();
+        
+        let email = document.getElementById('email').value.trim();
+        let password = document.getElementById('password').value;
+
+        // بيانات المطور (الأدمن)
+        let adminEmail = "admin@almeezan.com"; 
+        let adminPassword = "MyStrongPassword2026!!"; 
+
+        // بيانات الزائر العادي
+        let userEmail = "user@almeezan.com";
+        let userPassword = "User1234";
+
+        if (email === adminEmail && password === adminPassword) {
+            alert("أهلاً بك يا مطور! جاري الانتقال للوحة التحكم...");
+            sessionStorage.setItem('role', 'admin');
+            window.location.href = 'admin.html';
+        } else if (email === userEmail && password === userPassword) {
+            alert("تم تسجيل دخول الزائر بنجاح! جاري الانتقال للمكتبة...");
+            sessionStorage.setItem('role', 'user');
+            window.location.href = 'index.html';
+        } else {
+            alert("خطأ في البريد الإلكتروني أو كلمة السر! حاول مرة أخرى.");
+        }
+    }
+</script>
+</body>
+</html>
+

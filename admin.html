@@ -1,0 +1,71 @@
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+<script>
+    // كود الاتصال بالسيرفر السحابي
+    const firebaseConfig = {
+        apiKey: "AIzaSyAs7X3VzO0Y-3pM1nZ6WbQ8vR9_AlMeezan",
+        authDomain: "almeezan-platform.firebaseapp.com",
+        projectId: "almeezan-platform",
+        storageBucket: "almeezan-platform.appspot.com",
+        messagingSenderId: "58392019485",
+        appId: "1:58392019485:web:a1b2c3d4e5f6"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // كود الحماية المباشر اللي كنت عامله لحماية صفحة الأدمن
+    if (sessionStorage.getItem('role') !== 'admin') {
+        alert("غير مسموح لك بدخول هذه الصفحة!");
+        window.location.href = 'login.html';
+    }
+
+    // دالة الرفع السحابية الحقيقية بنفس اسم دالتك القديمة تماماً
+    async function addPdfFile() {
+        let titleInput = document.getElementById('pdfTitle');
+        let fileInput = document.getElementById('pdfFile');
+        
+        if (!titleInput || titleInput.value.trim() === '') {
+            alert('برجاء كتابة عنوان القانون أو الملف أولاً!');
+            return;
+        }
+        if (!fileInput || fileInput.files.length === 0) {
+            alert('برجاء اختيار ملف PDF أولاً!');
+            return;
+        }
+
+        let title = titleInput.value.trim();
+        let file = fileInput.files[0];
+        
+        alert('جاري رفع الملف الفعلي إلى السيرفر السحابي... انتظر ثواني لو سمحت');
+
+        try {
+            // 1. رفع ملف الـ PDF الحقيقي إلى مساحة التخزين السحابية لـ Google
+            let storageRef = storage.ref('law_books/' + Date.now() + '_' + file.name);
+            await storageRef.put(file);
+            
+            // 2. الحصول على رابط التحميل المباشر والآمن للملف من السيرفر
+            let fileURL = await storageRef.getDownloadURL();
+
+            // 3. قيد اسم الملف ورابطه السحابي في قاعدة البيانات
+            await db.collection("lawBooks").add({
+                title: title,
+                author: "المكتبة الرقمية",
+                pdfUrl: fileURL,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            alert('تم رفع الملف بنجاح وحفظه في قاعدة البيانات!');
+            
+            // إعادة توجيه المستخدم لصفحة المكتبة لرؤية الملف فوراً
+            window.location.href = 'library.html';
+
+        } catch (error) {
+            console.error(error);
+            alert('حدث خطأ أثناء الرفع السحابي: ' + error.message);
+        }
+    }
+</script>

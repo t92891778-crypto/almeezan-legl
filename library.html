@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المكتبة الرقمية | الميزان</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #0d0d0d; color: #fff; margin: 0; padding: 0; min-height: 100vh; }
+        
+        /* شريط التنقل */
+        nav { background-color: #141414; border-bottom: 2px solid #d4af37; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { color: #d4af37; font-size: 22px; font-weight: bold; text-decoration: none; }
+        .btn-back { color: #aaa; text-decoration: none; font-weight: bold; transition: color 0.3s; }
+        .btn-back:hover { color: #fff; }
+
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        h1 { color: #d4af37; text-align: center; margin-bottom: 40px; }
+
+        /* شبكة عرض الكتب */
+        .books-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        
+        /* بطاقة الكتاب */
+        .book-card { background-color: #141414; border: 1px solid #262626; border-radius: 8px; padding: 20px; text-align: center; transition: transform 0.3s, border-color 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .book-card:hover { transform: translateY(-5px); border-color: #d4af37; }
+        
+        /* أيقونة الـ PDF الافتراضية */
+        .pdf-icon { font-size: 50px; color: #ff4d4d; margin-bottom: 15px; }
+        
+        .book-title { font-size: 18px; font-weight: bold; color: #fff; margin-bottom: 10px; min-height: 50px; display: flex; align-items: center; justify-content: center; }
+        .book-author { font-size: 14px; color: #aaa; margin-bottom: 20px; }
+        
+        /* أزرار التحكم */
+        .actions { display: flex; gap: 10px; justify-content: center; }
+        .btn-book { flex: 1; padding: 10px; border-radius: 5px; font-weight: bold; text-decoration: none; font-size: 14px; cursor: pointer; text-align: center; transition: background 0.3s; }
+        .btn-view { background-color: transparent; color: #d4af37; border: 1px solid #d4af37; }
+        .btn-view:hover { background-color: rgba(212, 175, 55, 0.1); }
+        .btn-download { background-color: #d4af37; color: #0d0d0d; border: none; }
+        .btn-download:hover { background-color: #fff; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="index.html" class="logo">⚖️ منصة الميزان</a>
+        <a href="index.html" class="btn-back">← العودة للرئيسية</a>
+    </nav>
+
+    <div class="container">
+        <h1>📚 المكتبة القانونية الرقمية</h1>
+        
+        <div class="books-grid">
+            <div class="book-card">
+                <div class="pdf-icon">📕</div>
+                <div class="book-title">شرح القانون المدني المصري</div>
+                <div class="book-author">د. عبد الرزاق السنهوري</div>
+                <div class="actions">
+                    <a href="#" class="btn-book btn-view" onclick="viewPdf('القانون المدني')">قراءة</a>
+                    <a href="#" class="btn-book btn-download" onclick="downloadPdf('القانون المدني')">تحميل</a>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <div class="pdf-icon">📕</div>
+                <div class="book-title">الوسيط في شرح قانون العقوبات</div>
+                <div class="book-author">د. أحمد فتحي سرور</div>
+                <div class="actions">
+                    <a href="#" class="btn-book btn-view" onclick="viewPdf('قانون العقوبات')">قراءة</a>
+                    <a href="#" class="btn-book btn-download" onclick="downloadPdf('قانون العقوبات')">تحميل</a>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <div class="pdf-icon">📕</div>
+                <div class="book-title">قانون الإجراءات الجنائية وتطبيقاته</div>
+                <div class="book-author">مجموعة من فقهاء القانون</div>
+                <div class="actions">
+                    <a href="#" class="btn-book btn-view" onclick="viewPdf('الإجراءات الجنائية')">قراءة</a>
+                    <a href="#" class="btn-book btn-download" onclick="downloadPdf('الإجراءات الجنائية')">تحميل</a>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+    // كود الاتصال بقاعدة البيانات السحابية المؤمنة
+    const firebaseConfig = {
+        apiKey: "AIzaSyAs7X3VzO0Y-3pM1nZ6WbQ8vR9_AlMeezan",
+        authDomain: "almeezan-platform.firebaseapp.com",
+        projectId: "almeezan-platform",
+        storageBucket: "almeezan-platform.appspot.com",
+        messagingSenderId: "58392019485",
+        appId: "1:58392019485:web:a1b2c3d4e5f6"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // الاستماع لقاعدة البيانات وعرض الكتب فوراً بدون ريفريش
+    db.collection("lawBooks").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+        let booksGrid = document.querySelector('.books-grid');
+        if (!booksGrid) return;
+
+        // تفريغ الشبكة تماماً لإعادة بنائها ديناميكياً من السيرفر
+        booksGrid.innerHTML = '';
+
+        // إذا كانت قاعدة البيانات فارغة تماماً
+        if(snapshot.empty) {
+            booksGrid.innerHTML = `<p style="color:gray; text-align:center; grid-column:1/-1; width:100%;">المكتبة فارغة حالياً، ارفع أول قانون من لوحة التحكم!</p>`;
+            return;
+        }
+
+        // رسم كروت الكتب بناءً على البيانات الفوق سحابية الحية
+        snapshot.forEach((doc) => {
+            let book = doc.data();
+            
+            booksGrid.innerHTML += `
+                <div class="book-card">
+                    <div class="pdf-icon">📕</div>
+                    <div class="book-title">${book.title}</div>
+                    <div class="book-author">${book.author || 'المكتبة الرقمية'}</div>
+                    <div class="actions">
+                        <a href="${book.pdfUrl}" target="_blank" class="btn-book btn-view">قراءة</a>
+                        <a href="${book.pdfUrl}" download="${book.title}.pdf" class="btn-book btn-download">تحميل</a>
+                    </div>
+                </div>
+            `;
+        });
+    });
+</script>
+
+
+</body>
+</html>
+ 
