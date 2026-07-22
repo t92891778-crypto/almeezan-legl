@@ -3,32 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم - إضافة ملف جديد</title>
+    <title>لوحة تحكم المطورين / الأدمن</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #333; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        input[type="text"], input[type="file"] { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; margin-top: 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
-        button:hover { background-color: #218838; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #f4f6f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            padding: 35px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 22px;
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+            font-size: 15px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #dcdfe6;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: #1e824c;
+        }
+
+        .file-upload-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px dashed #cbd5e1;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f8fafc;
+        }
+
+        input[type="file"] {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background-color: #1e824c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-submit:hover {
+            background-color: #196f3d;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.99);
+        }
     </style>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 </head>
 <body>
 
-<div class="container">
+<div class="card">
     <h2>لوحة تحكم المطورين / الأدمن</h2>
     
-    <label for="pdfTitle">عنوان القانون أو الكتاب:</label>
-    <input type="text" id="pdfTitle" placeholder="أدخل اسم الملف هنا...">
+    <div class="form-group">
+        <label for="pdfTitle">عنوان القانون أو الكتاب:</label>
+        <input type="text" id="pdfTitle" placeholder="أدخل اسم الملف هنا...">
+    </div>
 
-    <label for="pdfFile">اختر ملف PDF:</label>
-    <input type="file" id="pdfFile" accept="application/pdf">
+    <div class="form-group">
+        <label for="pdfFile">اختر ملف PDF:</label>
+        <div class="file-upload-wrapper">
+            <input type="file" id="pdfFile" accept="application/pdf">
+        </div>
+    </div>
 
-    <button onclick="addPdfFile()">رفع الملف أونلاين</button>
+    <button class="btn-submit" onclick="addPdfFile()">رفع الملف أونلاين</button>
 </div>
 
 <script>
@@ -44,16 +139,14 @@
     
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const storage = firebase.storage();
 
-    // 🔒 إعادة تفعيل الحماية:
-    // يتحقق مما إذا كان المستخدم مسجلاً كـ admin، وإذا لم يكن كذلك يحوله لصفحة login.html
+    // 🛡️ كود الحماية: يمنع الدخول إلا بعد تسجيل الدخول من صفحة اللوجن
     if (sessionStorage.getItem('role') !== 'admin') {
-        alert("تنبيه: يجب تسجيل الدخول كـ (مطور/أدمن) أولاً لتتمكن من استخدام هذه الصفحة!");
-        window.location.href = 'login.html'; 
+        alert("تنبيه: غير مسموح لك بدخول هذه الصفحة إلا بعد تسجيل الدخول كـ (أدمن/مطور)!");
+        window.location.href = 'login.html';
     }
 
-    // دالة الرفع السحابية
+    // دالة إضافة الملف وحفظ بياناته فوراً
     async function addPdfFile() {
         let titleInput = document.getElementById('pdfTitle');
         let fileInput = document.getElementById('pdfFile');
@@ -69,32 +162,24 @@
 
         let title = titleInput.value.trim();
         let file = fileInput.files[0];
-        
-        alert('جاري رفع الملف الفعلي إلى السيرفر السحابي... انتظر ثواني لو سمحت');
 
         try {
-            let storageRef = storage.ref('law_books/' + Date.now() + '_' + file.name);
-            await storageRef.put(file);
-            
-            let fileURL = await storageRef.getDownloadURL();
-
             await db.collection("lawBooks").add({
                 title: title,
+                fileName: file.name,
                 author: "المكتبة الرقمية",
-                pdfUrl: fileURL,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
 
-            alert('تم رفع الملف بنجاح وحفظه في قاعدة البيانات!');
+            alert('تم إضافة الكتاب/الملف بنجاح إلى قاعدة البيانات!');
             window.location.href = 'library.html';
 
         } catch (error) {
             console.error(error);
-            alert('حدث خطأ أثناء الرفع السحابي: ' + error.message);
+            alert('حدث خطأ: ' + error.message);
         }
     }
 </script>
-
 
 </body>
 </html>
