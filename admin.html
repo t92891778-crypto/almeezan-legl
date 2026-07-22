@@ -46,13 +46,12 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // تم إيقاف شرط الحماية مؤقتاً لتتمكن من تجربة الصفحة على GitHub Pages
-    /*
+    // 🔒 إعادة تفعيل الحماية:
+    // يتحقق مما إذا كان المستخدم مسجلاً كـ admin، وإذا لم يكن كذلك يحوله لصفحة login.html
     if (sessionStorage.getItem('role') !== 'admin') {
-        alert("غير مسموح لك بدخول هذه الصفحة!");
-        window.location.href = 'login.html';
+        alert("تنبيه: يجب تسجيل الدخول كـ (مطور/أدمن) أولاً لتتمكن من استخدام هذه الصفحة!");
+        window.location.href = 'login.html'; 
     }
-    */
 
     // دالة الرفع السحابية
     async function addPdfFile() {
@@ -74,14 +73,11 @@
         alert('جاري رفع الملف الفعلي إلى السيرفر السحابي... انتظر ثواني لو سمحت');
 
         try {
-            // 1. رفع ملف الـ PDF الحقيقي إلى مساحة التخزين السحابية لـ Google
             let storageRef = storage.ref('law_books/' + Date.now() + '_' + file.name);
             await storageRef.put(file);
             
-            // 2. الحصول على رابط التحميل المباشر
             let fileURL = await storageRef.getDownloadURL();
 
-            // 3. قيد اسم الملف ورابطه السحابي في قاعدة البيانات
             await db.collection("lawBooks").add({
                 title: title,
                 author: "المكتبة الرقمية",
@@ -90,8 +86,6 @@
             });
 
             alert('تم رفع الملف بنجاح وحفظه في قاعدة البيانات!');
-            
-            // إعادة توجيه المستخدم لصفحة المكتبة
             window.location.href = 'library.html';
 
         } catch (error) {
@@ -100,6 +94,7 @@
         }
     }
 </script>
+
 
 </body>
 </html>
