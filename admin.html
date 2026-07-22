@@ -1,6 +1,35 @@
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - إضافة ملف جديد</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input[type="text"], input[type="file"] { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; margin-top: 20px; background-color: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <h2>لوحة تحكم المطورين / الأدمن</h2>
+    
+    <label for="pdfTitle">عنوان القانون أو الكتاب:</label>
+    <input type="text" id="pdfTitle" placeholder="أدخل اسم الملف هنا...">
+
+    <label for="pdfFile">اختر ملف PDF:</label>
+    <input type="file" id="pdfFile" accept="application/pdf">
+
+    <button onclick="addPdfFile()">رفع الملف أونلاين</button>
+</div>
 
 <script>
     // كود الاتصال بالسيرفر السحابي
@@ -17,13 +46,15 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // كود الحماية المباشر اللي كنت عامله لحماية صفحة الأدمن
+    // تم إيقاف شرط الحماية مؤقتاً لتتمكن من تجربة الصفحة على GitHub Pages
+    /*
     if (sessionStorage.getItem('role') !== 'admin') {
         alert("غير مسموح لك بدخول هذه الصفحة!");
         window.location.href = 'login.html';
     }
+    */
 
-    // دالة الرفع السحابية الحقيقية بنفس اسم دالتك القديمة تماماً
+    // دالة الرفع السحابية
     async function addPdfFile() {
         let titleInput = document.getElementById('pdfTitle');
         let fileInput = document.getElementById('pdfFile');
@@ -47,7 +78,7 @@
             let storageRef = storage.ref('law_books/' + Date.now() + '_' + file.name);
             await storageRef.put(file);
             
-            // 2. الحصول على رابط التحميل المباشر والآمن للملف من السيرفر
+            // 2. الحصول على رابط التحميل المباشر
             let fileURL = await storageRef.getDownloadURL();
 
             // 3. قيد اسم الملف ورابطه السحابي في قاعدة البيانات
@@ -60,7 +91,7 @@
 
             alert('تم رفع الملف بنجاح وحفظه في قاعدة البيانات!');
             
-            // إعادة توجيه المستخدم لصفحة المكتبة لرؤية الملف فوراً
+            // إعادة توجيه المستخدم لصفحة المكتبة
             window.location.href = 'library.html';
 
         } catch (error) {
@@ -69,3 +100,6 @@
         }
     }
 </script>
+
+</body>
+</html>
